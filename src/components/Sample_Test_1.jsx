@@ -9,35 +9,18 @@ const Sample_Test_1 = () => {
 
   const handleInput = (value) => {
     setError("");
-
-    // Clear
-    if (value === "C") {
-      clearInput();
-      return;
-    }
-
-    // Backspace
+    if (value === "C") return clearInput();
     if (value === "DEL") {
       setInput((prev) => prev.slice(0, -1));
       setResult("");
       return;
     }
-
-    // Calculate
-    if (value === "=") {
-      calculate();
-      return;
-    }
-
-    // Avoid starting with an operator (except minus)
+    if (value === "=") return calculate();
     if (!input && isOperator(value) && value !== "-") return;
-
-    // Avoid double operators like ++, +*, etc.
     if (input && isOperator(input[input.length - 1]) && isOperator(value)) {
       setInput((prev) => prev.slice(0, -1) + value);
       return;
     }
-
     setInput((prev) => prev + value);
   };
 
@@ -49,15 +32,9 @@ const Sample_Test_1 = () => {
 
   const calculate = () => {
     if (!input) return;
-
     try {
-      // BODMAS is handled by JS evaluation order
-      // Only allow safe characters
       const safeExpression = input.replace(/[^0-9+\-*/().%]/g, "");
-
-      // eslint-disable-next-line no-eval
       const calculatedValue = eval(safeExpression);
-
       if (calculatedValue === undefined) {
         setError("Invalid expression");
         setResult("");
@@ -65,20 +42,18 @@ const Sample_Test_1 = () => {
         setResult(calculatedValue);
         setError("");
       }
-    } catch (err) {
+    } catch {
       setError("Invalid expression");
       setResult("");
     }
   };
 
-  // Keyboard support
   useEffect(() => {
     const handleKeyDown = (e) => {
       const key = e.key;
-
       if (
         (key >= "0" && key <= "9") ||
-        ["+", "-", "*", "/", ".", "(", ")","%"].includes(key)
+        ["+", "-", "*", "/", ".", "(", ")", "%"].includes(key)
       ) {
         e.preventDefault();
         handleInput(key);
@@ -93,7 +68,6 @@ const Sample_Test_1 = () => {
         handleInput("C");
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [input]);
@@ -123,31 +97,24 @@ const Sample_Test_1 = () => {
   ];
 
   const baseBtn =
-    "py-3 rounded-lg text-lg font-semibold transition transform active:scale-95 shadow-sm";
+    "py-3 rounded-xl text-lg font-semibold transition transform active:scale-95 shadow-sm border border-slate-700";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-gray-100 px-4">
-      <div className="w-full max-w-sm bg-slate-900/80 border border-slate-700 rounded-2xl shadow-2xl p-5 backdrop-blur">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold">BODMAS Calculator</h2>
-            <p className="text-xs text-slate-400">
-              Supports brackets and follows operator precedence.
-            </p>
-          </div>
-          <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-400/40">
-            BODMAS
-          </span>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-gray-100 px-4 select-none">
+      <div className="w-full max-w-sm bg-gray-900 border border-gray-700 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.6)] p-5 backdrop-blur-xl">
+        
+        <div className="flex items-center justify-between mb-4 border-b border-gray-700 pb-3">
+          <h2 className="text-xl font-bold tracking-wide text-gray-200">
+            Advanced BODMAS Tool
+          </h2>
         </div>
 
-        {/* Display */}
-        <div className="mb-3">
-          <div className="w-full min-h-[70px] bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 flex flex-col justify-center items-end overflow-x-auto">
-            <div className="text-xs text-slate-400 w-full text-right break-words">
-              {input || "Enter expression..."}
+        <div className="mb-4">
+          <div className="w-full min-h-[80px] bg-black/40 border border-gray-700 rounded-xl px-4 py-3 flex flex-col justify-center items-end overflow-x-auto shadow-inner">
+            <div className="text-sm text-gray-400 w-full text-right break-words tracking-wide">
+              {input || "Start typing..."}
             </div>
-            <div className="text-2xl font-bold mt-1 text-emerald-300">
+            <div className="text-3xl font-bold mt-1 text-emerald-400 drop-shadow-lg">
               {error ? "Error" : result || "0"}
             </div>
           </div>
@@ -156,26 +123,27 @@ const Sample_Test_1 = () => {
           )}
         </div>
 
-        {/* Buttons */}
-        <div className="grid grid-cols-4 gap-2 mt-3">
+        <div className="grid grid-cols-4 gap-3 mt-3">
           {buttons.map((btn) => {
-            const isOperatorBtn = isOperator(btn) || ["(", ")", "%"].includes(btn);
+            const isOperatorBtn =
+              isOperator(btn) || ["(", ")", "%"].includes(btn);
             const isEqualBtn = btn === "=";
             const isClear = btn === "C";
             const isDel = btn === "DEL";
 
-            let extraClasses = "bg-slate-800 hover:bg-slate-700";
+            let extraClasses = "bg-gray-800 hover:bg-gray-700";
             if (isOperatorBtn)
-              extraClasses = "bg-slate-700 hover:bg-slate-600 text-amber-300";
+              extraClasses =
+                "bg-gray-700 hover:bg-gray-600 text-amber-300 border-amber-300/20";
             if (isClear)
               extraClasses =
-                "bg-red-500/90 hover:bg-red-500 text-white col-span-1";
+                "bg-red-600 hover:bg-red-700 text-white font-semibold";
             if (isDel)
               extraClasses =
-                "bg-orange-500/90 hover:bg-orange-500 text-white text-base";
+                "bg-orange-500 hover:bg-orange-600 text-white text-base";
             if (isEqualBtn)
               extraClasses =
-                "bg-emerald-500 hover:bg-emerald-600 text-white col-span-2";
+                "bg-emerald-600 hover:bg-emerald-700 text-white col-span-2 text-xl font-bold";
 
             return (
               <button
@@ -189,9 +157,8 @@ const Sample_Test_1 = () => {
           })}
         </div>
 
-        {/* Hint */}
-        <div className="mt-4 text-[11px] text-slate-400 text-center">
-          Tip: You can also use your keyboard (0–9, + − × ÷, Enter, Backspace, Esc).
+        <div className="mt-4 text-[11px] text-gray-500 text-center border-t border-gray-700 pt-3 tracking-wide">
+          Keyboard Supported — Use numbers, operators, Enter, Backspace, Esc.
         </div>
       </div>
     </div>
